@@ -1,0 +1,22 @@
+name: Publish
+
+on:
+  push:
+    branches:
+    - main
+    - pa*
+  pull_request:
+    branches:
+    - main
+    - pa*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: isbang/compose-action@v1.5.1
+      with:
+       compose-file: "./docker-compose.yml"
+      env:
+        CUSTOM_VARIABLE: "test"
