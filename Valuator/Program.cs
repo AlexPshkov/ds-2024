@@ -1,15 +1,22 @@
+using Integration.Redis;
+using Integration.Redis.Configuration;
+
 namespace Valuator;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
         builder.Services.AddRazorPages();
 
-        var app = builder.Build();
+        builder.Services.AddRedisClient( builder.Configuration
+            .GetSection( RedisClientConfiguration.SectionName )
+            .Get<RedisClientConfiguration>() );
+        
+        WebApplication app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

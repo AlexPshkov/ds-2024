@@ -1,0 +1,40 @@
+services:
+  valuator:
+    image: valuator
+    build:
+      context: .
+      dockerfile: Valuator/Dockerfile
+    restart: unless-stopped  
+    ports:
+      - '5141:5141'
+    environment:
+      - "URLS=http://*:5141/"
+      - "ASPNETCORE_URLS=http://*:5141/"
+      - "REDIS_ADDRESS=redis-db"
+      - "REDIS_PORT=6379"
+    depends_on: 
+      - redis-db
+    networks: 
+      - internet
+      - appnet
+  
+  redis-db:
+    image: redis:6.2-alpine
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis-cache:/data
+    networks:
+      - appnet 
+ 
+networks:
+  internet:
+    name: internet
+    driver: bridge
+  appnet:
+    name: appnet
+    driver: bridge        
+        
+volumes:
+  redis-cache:
+    driver: local

@@ -2,5 +2,5 @@
 @model Valuator.Pages.SummaryModel
 @{
 }
-<p>Оценка содержания: @Model.Rank</p>
-<p>Плагиат: @Model.Similarity</p>
+<p>Оценка содержания: @Model.Rank.ToString( "F2" )</p>
+<p>Плагиат: @Model.Similarity.ToString( "F2" )</p>
