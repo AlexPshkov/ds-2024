@@ -12,9 +12,12 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorPages();
 
-        builder.Services.AddRedisClient( builder.Configuration
-            .GetSection( RedisClientConfiguration.SectionName )
-            .Get<RedisClientConfiguration>() );
+        RedisClientConfiguration? redisClientConfiguration = builder.Configuration
+            .GetSection(RedisClientConfiguration.SectionName)
+            .Get<RedisClientConfiguration>();
+        
+        builder.Services.AddRedisClient( redisClientConfiguration );
+        builder.Services.AddRedisDataProtection( redisClientConfiguration );
         
         WebApplication app = builder.Build();
 

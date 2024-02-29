@@ -1,5 +1,6 @@
 using Integration.Redis.Client;
 using Integration.Redis.Configuration;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
@@ -29,5 +30,22 @@ public static class RedisServicesCollectionExtensions
             .GetServer( configuration.Connection ) );
 
         services.AddTransient<IRedisClient, RedisClient>();
+    }
+
+    /// <summary>
+    /// Используется для хранения AntiForgeryToken
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static void AddRedisDataProtection( this IServiceCollection services, RedisClientConfiguration? configuration )
+    {
+        if ( configuration == null )
+        {
+            throw new ArgumentNullException( nameof( configuration ), "Redis configuration required" );
+        }
+        
+        ConnectionMultiplexer redisConnection = ConnectionMultiplexer.Connect( configuration.Connection );
+        services.AddDataProtection().PersistKeysToStackExchangeRedis( redisConnection, "DataProtection-Keys" );
     }
 }

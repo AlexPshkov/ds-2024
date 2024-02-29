@@ -1,12 +1,23 @@
 services:
+  nginx-proxy:
+    image: nginx
+    volumes:
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+    command: [ "nginx", '-g', 'daemon off;' ]
+    ports:
+      - '8080:8080'
+    depends_on:
+      - valuator 
+    networks:
+      - internet
+      - appnet  
+  
   valuator:
     image: valuator
     build:
       context: .
       dockerfile: Valuator/Dockerfile
     restart: unless-stopped  
-    ports:
-      - '5141:5141'
     environment:
       - "URLS=http://*:5141/"
       - "ASPNETCORE_URLS=http://*:5141/"
@@ -15,8 +26,10 @@ services:
     depends_on: 
       - redis-db
     networks: 
-      - internet
       - appnet
+    deploy:
+      mode: replicated
+      replicas: 3
   
   redis-db:
     image: redis:6.2-alpine
