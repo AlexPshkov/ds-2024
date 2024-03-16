@@ -13,16 +13,17 @@ services:
       - appnet  
   
   valuator:
-    image: valuator
     build:
       context: .
       dockerfile: Valuator/Dockerfile
     restart: unless-stopped  
     environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
       - "URLS=http://*:5141/"
       - "ASPNETCORE_URLS=http://*:5141/"
       - "REDIS_ADDRESS=redis-db"
       - "REDIS_PORT=6379"
+      - "NATS_URL=nats://nats:4222"
     depends_on: 
       - redis-db
     networks: 
@@ -30,6 +31,25 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+    
+  rank-calculator:
+    build:
+      context: .
+      dockerfile: RankCalculator/Dockerfile
+    restart: unless-stopped
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "REDIS_ADDRESS=redis-db"
+      - "REDIS_PORT=6379"
+      - "NATS_URL=nats://nats:4222"
+    depends_on:
+      - redis-db
+      - nats
+    networks:
+      - appnet
+    deploy:
+      mode: replicated
+      replicas: 3   
   
   redis-db:
     image: redis:6.2-alpine
@@ -39,6 +59,14 @@ services:
       - redis-cache:/data
     networks:
       - appnet 
+
+  nats:
+    image: nats
+    ports:
+      - "8222:8222"
+    command: "--http_port 8222"
+    networks:
+      - appnet
  
 networks:
   internet:

@@ -1,8 +1,9 @@
-using System.Globalization;
+using Infrastructure.Extensions;
+using Integration.Nats.Client;
+using Integration.Nats.Messages.Implementation;
 using Integration.Redis.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Valuator.Extensions;
 
 namespace Valuator.Pages;
 
@@ -10,49 +11,33 @@ public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
     private readonly IRedisClient _redisClient;
-    
-    public IndexModel( ILogger<IndexModel> logger, IRedisClient redisClient )
+    private readonly INatsClient _natsClient;
+
+    public IndexModel( ILogger<IndexModel> logger, IRedisClient redisClient, INatsClient natsClient )
     {
         _logger = logger;
         _redisClient = redisClient;
+        _natsClient = natsClient;
     }
 
     public void OnGet()
     {
     }
 
-    public IActionResult OnPost( string text )
+    public async Task<IActionResult> OnPost( string text )
     {
         _logger.LogDebug( text );
-
-        string id = Guid.NewGuid().ToString();
-
-        _redisClient.Save( id.AsRankKey(), CalculateRank( text ).ToString( CultureInfo.CurrentCulture ) );
         
-        _redisClient.Save( id.AsSimilarityKey(), CalculateSimilarity( text ).ToString( CultureInfo.CurrentCulture ) );
- 
-        _redisClient.Save( id.AsTextKey(), text );
+         Guid id = Guid.NewGuid();
+         string stringId = id.ToString();
 
-        return Redirect( $"summary?id={id}" );
-    }
+        _redisClient.Save( stringId.AsTextKey(), text );
 
-    private double CalculateRank( string text )
-    {
-        if ( string.IsNullOrEmpty( text ) )
+        CalcMessageResponse? response = await _natsClient.MakeCalcRequest( new CalcMessageRequest
         {
-            return 1;
-        }
-
-        int unAlphabetCharsCount = text.Count( x => !char.IsLetter( x ) );
-
-        return 1 - (double) unAlphabetCharsCount / text.Length;
-    }
-    
-    private int CalculateSimilarity( string text )
-    {
-        bool isSuch = _redisClient.GetAllKeys()
-            .Any( x => x.IsTextKey() && _redisClient.Get( x ).Equals( text, StringComparison.CurrentCultureIgnoreCase ) );
-
-        return isSuch ? 1 : 0;
+            TextKey = stringId
+        } );
+        
+        return Redirect( $"summary?id={response!.TextKey}" );
     }
 }

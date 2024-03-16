@@ -15,7 +15,7 @@ public static class RedisServicesCollectionExtensions
             throw new ArgumentNullException( nameof( configuration ), "Redis configuration required" );
         }
 
-        configuration.Connection = string.Format( configuration.Connection,
+        configuration.Connection = String.Format( configuration.Connection,
             Environment.GetEnvironmentVariable( "REDIS_ADDRESS" ), 
             Environment.GetEnvironmentVariable( "REDIS_PORT" ) );
 

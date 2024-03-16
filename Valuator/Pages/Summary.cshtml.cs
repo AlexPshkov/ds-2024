@@ -1,6 +1,6 @@
-﻿using Integration.Redis.Client;
+﻿using Infrastructure.Extensions;
+using Integration.Redis.Client;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Valuator.Extensions;
 
 namespace Valuator.Pages;
 
@@ -22,12 +22,12 @@ public class SummaryModel : PageModel
     {
         _logger.LogDebug( id );
 
-        if ( double.TryParse( _redisClient.Get( id.AsRankKey() ), out double rank ) )
+        if ( Double.TryParse( _redisClient.Get( id.AsRankKey() ), out double rank ) )
         {
             Rank = rank;
         }
 
-        if ( double.TryParse( _redisClient.Get( id.AsSimilarityKey() ), out double similarity ) )
+        if ( Double.TryParse( _redisClient.Get( id.AsSimilarityKey() ), out double similarity ) )
         {
             Similarity = similarity;
         }

@@ -1,4 +1,4 @@
-namespace Valuator.Extensions;
+namespace Infrastructure.Extensions;
 
 public static class StringExtensions
 {
