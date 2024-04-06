@@ -27,7 +27,7 @@ public class CalcConsumer : BasicConsumer<CalcMessageRequest>
         
         _redisClient.Save( stringId.AsRankKey(), CalculateRank( text ).ToString( CultureInfo.CurrentCulture ) );
         
-        _redisClient.Save( stringId.AsSimilarityKey(), CalculateSimilarity( text ).ToString( CultureInfo.CurrentCulture ) );
+        _redisClient.Save( stringId.AsSimilarityKey(), CalculateSimilarity( stringId.AsTextKey(), text ).ToString( CultureInfo.CurrentCulture ) );
 
         _logger.LogInformation( $"Successfully handled {calcMessageRequest.TextKey} by machine {@Environment.MachineName}" );
         
@@ -49,10 +49,10 @@ public class CalcConsumer : BasicConsumer<CalcMessageRequest>
         return 1 - ((double) unAlphabetCharsCount / text.Length);
     }
     
-    private int CalculateSimilarity( string text )
+    private int CalculateSimilarity( string textKey, string text )
     {
         bool isSuch = _redisClient.GetAllKeys()
-            .Any( x => x.IsTextKey() && _redisClient.Get( x ).Equals( text, StringComparison.CurrentCultureIgnoreCase ) );
+            .Any( x => x.IsTextKey() && x != textKey && _redisClient.Get( x ).Equals( text, StringComparison.CurrentCultureIgnoreCase ) );
 
         return isSuch ? 1 : 0;
     }
