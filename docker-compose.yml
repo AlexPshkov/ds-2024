@@ -26,6 +26,9 @@ services:
       - "NATS_URL=nats://nats:4222"
     depends_on: 
       - redis-db
+      - nats
+      - similarity-calculator
+      - rank-calculator
     networks: 
       - appnet
     deploy:
@@ -49,11 +52,50 @@ services:
       - appnet
     deploy:
       mode: replicated
-      replicas: 3   
+      replicas: 3 
+
+  similarity-calculator:
+    build:
+      context: .
+      dockerfile: SimilarityCalculator/Dockerfile
+    restart: unless-stopped
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "REDIS_ADDRESS=redis-db"
+      - "REDIS_PORT=6379"
+      - "NATS_URL=nats://nats:4222"
+    depends_on:
+      - redis-db
+      - nats
+    networks:
+      - appnet
+    deploy:
+      mode: replicated
+      replicas: 3
+  
+  events-logger:
+    build:
+      context: .
+      dockerfile: EventsLogger/Dockerfile
+    restart: unless-stopped
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "NATS_URL=nats://nats:4222"
+    depends_on:
+      - nats
+      - similarity-calculator
+      - rank-calculator
+    networks:
+      - appnet
+    deploy:
+      mode: replicated
+      replicas: 2
   
   redis-db:
     image: redis:6.2-alpine
     restart: always
+    ports:
+#      - "6379:6379" #Debug
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-cache:/data
@@ -64,6 +106,7 @@ services:
     image: nats
     ports:
       - "8222:8222"
+#      - "4222:4222" #Debug
     command: "--http_port 8222"
     networks:
       - appnet

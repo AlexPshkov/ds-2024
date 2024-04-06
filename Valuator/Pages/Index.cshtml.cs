@@ -1,6 +1,8 @@
 using Infrastructure.Extensions;
 using Integration.Nats.Client;
 using Integration.Nats.Messages.Implementation;
+using Integration.Nats.Messages.Implementation.Rank;
+using Integration.Nats.Messages.Implementation.Similarity;
 using Integration.Redis.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -33,11 +35,16 @@ public class IndexModel : PageModel
 
         _redisClient.Save( stringId.AsTextKey(), text );
 
-        CalcMessageResponse? response = await _natsClient.MakeCalcRequest( new CalcMessageRequest
+        await _natsClient.MakeCalcRankRequest( new RankCalcMessageRequest
         {
             TextKey = stringId
         } );
         
-        return Redirect( $"summary?id={response!.TextKey}" );
+        await _natsClient.MakeCalcSimilarityRequest( new SimilarityCalcMessageRequest
+        {
+            TextKey = stringId
+        } );
+        
+        return Redirect( $"summary?id={stringId}" );
     }
 }

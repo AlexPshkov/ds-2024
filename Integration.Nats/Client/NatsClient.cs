@@ -2,6 +2,8 @@ using System.Text;
 using Integration.Nats.Configuration;
 using Integration.Nats.Messages;
 using Integration.Nats.Messages.Implementation;
+using Integration.Nats.Messages.Implementation.Rank;
+using Integration.Nats.Messages.Implementation.Similarity;
 using NATS.Client;
 using Newtonsoft.Json;
 
@@ -18,9 +20,14 @@ public class NatsClient : INatsClient
         _natsConfiguration = natsConfiguration;
     }
 
-    public async Task<CalcMessageResponse?>MakeCalcRequest( CalcMessageRequest calcMessageRequest )
+    public async Task<CalcMessageResponse?>MakeCalcRankRequest( RankCalcMessageRequest rankCalcMessageRequest )
     {
-        return await RequestAsync<CalcMessageRequest, CalcMessageResponse>( calcMessageRequest );
+        return await RequestAsync<RankCalcMessageRequest, CalcMessageResponse>( rankCalcMessageRequest );
+    }
+    
+    public async Task<CalcMessageResponse?>MakeCalcSimilarityRequest( SimilarityCalcMessageRequest similarityCalcMessageRequest )
+    {
+        return await RequestAsync<SimilarityCalcMessageRequest, CalcMessageResponse>( similarityCalcMessageRequest );
     }
     
     public void Publish<T>( T eventMessage ) where T : IEventMessage
@@ -35,5 +42,10 @@ public class NatsClient : INatsClient
         Msg? response = await _connection.RequestAsync( typeof(T1).FullName, Encoding.UTF8.GetBytes( serializeRequestObject ) );
         
         return response == null ? default : JsonConvert.DeserializeObject<T2>( Encoding.UTF8.GetString( response.Data ) );
+    }
+
+    public IAsyncSubscription SubscribeAsync( string subject, string queueName, EventHandler<MsgHandlerEventArgs> handler )
+    {
+        return _connection.SubscribeAsync( subject, queueName, handler );
     }
 }

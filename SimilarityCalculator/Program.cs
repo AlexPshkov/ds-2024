@@ -1,14 +1,14 @@
 ﻿using Integration.Nats;
 using Integration.Nats.Configuration;
 using Integration.Nats.Messages.Implementation;
-using Integration.Nats.Messages.Implementation.Rank;
+using Integration.Nats.Messages.Implementation.Similarity;
 using Integration.Redis;
 using Integration.Redis.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using RankCalculator.Consumers;
+using SimilarityCalculator.Consumers;
 
-namespace RankCalculator;
+namespace SimilarityCalculator;
 
 public static class Program
 {
@@ -25,7 +25,7 @@ public static class Program
 
         builder.Services
             .AddNatsClient( natsConfiguration )
-            .AddNatsConsumer<RankCalcMessageRequest, RankCalcConsumer>();
+            .AddNatsConsumer<SimilarityCalcMessageRequest, SimilarityCalcConsumer>();
 
         BuildAndRun( builder );
     }

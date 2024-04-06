@@ -1,5 +1,7 @@
 using System.Text;
+using Integration.Nats.Client;
 using Integration.Nats.Messages;
+using Integration.Nats.Messages.Implementation;
 using Microsoft.Extensions.Hosting;
 using NATS.Client;
 using Newtonsoft.Json;
@@ -8,20 +10,20 @@ namespace Integration.Nats.Consumers;
 
 public abstract class BasicConsumer<T> : IHostedService where T : IEventMessage
 {
-    private readonly IConnection _connection;
+    private readonly INatsClient _natsClient;
 
     private IAsyncSubscription? _subscription;
 
-    public BasicConsumer( IConnection connection )
+    public BasicConsumer( INatsClient natsClient )
     {
-        _connection = connection;
+        _natsClient = natsClient;
     }
     
-    public abstract IEventMessageResult Handle( T calcMessageRequest );
+    public abstract IEventMessageResult Handle( T similarityCalcMessageRequest );
 
     public Task StartAsync( CancellationToken cancellationToken )
     {
-        _subscription = _connection.SubscribeAsync( typeof(T).FullName, typeof(T).Name, ( sender, args ) =>
+        _subscription = _natsClient.SubscribeAsync( typeof(T).FullName!, typeof(T).Name, ( sender, args ) =>
         {
             T? eventMessage = JsonConvert.DeserializeObject<T>( Encoding.UTF8.GetString( args.Message.Data ) );
 
@@ -32,7 +34,10 @@ public abstract class BasicConsumer<T> : IHostedService where T : IEventMessage
                 
             IEventMessageResult eventMessageResult = Handle( eventMessage );
             
-            args.Message.Respond( Encoding.UTF8.GetBytes( JsonConvert.SerializeObject( eventMessageResult ) ) );
+            if ( !String.IsNullOrEmpty( args.Message.Reply ) )
+            {
+                args.Message.Respond( Encoding.UTF8.GetBytes( JsonConvert.SerializeObject( eventMessageResult ) ) );
+            }
         } );
         
         _subscription.Start();
