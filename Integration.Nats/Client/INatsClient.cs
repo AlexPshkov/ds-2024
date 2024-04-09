@@ -5,7 +5,7 @@ namespace Integration.Nats.Client;
 
 public interface INatsClient
 {
-    Task<CalcMessageResponse?>MakeCalcRequest( CalcMessageRequest calcMessageRequest );
+    Task<CalcMessageResponse?>MakeCalcRequest( RankCalcMessageRequest rankCalcMessageRequest );
     
     void Publish<T>( T eventMessage ) where T : IEventMessage;
     Task<T2?> RequestAsync<T1, T2>( T1 requestMessage ) where T1 : IEventMessage where T2 : IEventMessageResult;

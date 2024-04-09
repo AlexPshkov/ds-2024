@@ -24,7 +24,7 @@ public static class Program
 
         builder.Services
             .AddNatsClient( natsConfiguration )
-            .AddNatsConsumer<CalcMessageRequest, CalcConsumer>();
+            .AddNatsConsumer<RankCalcMessageRequest, RankCalcConsumer>();
 
         BuildAndRun( builder );
     }

@@ -18,9 +18,9 @@ public class NatsClient : INatsClient
         _natsConfiguration = natsConfiguration;
     }
 
-    public async Task<CalcMessageResponse?>MakeCalcRequest( CalcMessageRequest calcMessageRequest )
+    public async Task<CalcMessageResponse?>MakeCalcRequest( RankCalcMessageRequest rankCalcMessageRequest )
     {
-        return await RequestAsync<CalcMessageRequest, CalcMessageResponse>( calcMessageRequest );
+        return await RequestAsync<RankCalcMessageRequest, CalcMessageResponse>( rankCalcMessageRequest );
     }
     
     public void Publish<T>( T eventMessage ) where T : IEventMessage

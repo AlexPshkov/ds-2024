@@ -1,3 +1,4 @@
+using System.Globalization;
 using Infrastructure.Extensions;
 using Integration.Nats.Client;
 using Integration.Nats.Messages.Implementation;
@@ -33,11 +34,21 @@ public class IndexModel : PageModel
 
         _redisClient.Save( stringId.AsTextKey(), text );
 
-        CalcMessageResponse? response = await _natsClient.MakeCalcRequest( new CalcMessageRequest
+        _redisClient.Save( stringId.AsSimilarityKey(), CalculateSimilarity( stringId.AsTextKey(), text ).ToString( CultureInfo.CurrentCulture ) );
+        
+        CalcMessageResponse? response = await _natsClient.MakeCalcRequest( new RankCalcMessageRequest
         {
             TextKey = stringId
         } );
         
         return Redirect( $"summary?id={response!.TextKey}" );
+    }
+    
+    private int CalculateSimilarity( string textKey, string text )
+    {
+        bool isSuch = _redisClient.GetAllKeys()
+            .Any( x => x.IsTextKey() && x != textKey && _redisClient.Get( x ).Equals( text, StringComparison.CurrentCultureIgnoreCase ) );
+
+        return isSuch ? 1 : 0;
     }
 }

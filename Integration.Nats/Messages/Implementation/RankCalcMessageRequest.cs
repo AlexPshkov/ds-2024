@@ -1,6 +1,6 @@
 namespace Integration.Nats.Messages.Implementation;
 
-public class CalcMessageRequest : IEventMessage
+public class RankCalcMessageRequest : IEventMessage
 {
     public string TextKey { get; set; }
 }
