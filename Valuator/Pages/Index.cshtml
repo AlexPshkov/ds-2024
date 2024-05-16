@@ -1,4 +1,5 @@
 ﻿@page
+@using Infrastructure.RegionSharding
 @model IndexModel
 @{
     ViewData["Title"] = "Главная";
@@ -12,6 +13,13 @@
         <div class="col-10">
             <textarea name="text" rows="5" cols="50"></textarea>
             <input type="submit" />
+            
+            @* <select asp-for="EmployeeId"  *@
+            @*         asp-items="@(new SelectList(Model.EmployeesList, nameof(Employee.Id), nameof(Employee.FullName)))"> *@
+            @*     <option>Please select one</option> *@
+            @* </select> *@
+            
+            <select name="country" asp-items="Html.GetEnumSelectList<Country>()"></select>
         </div>
     </form>
 </div>

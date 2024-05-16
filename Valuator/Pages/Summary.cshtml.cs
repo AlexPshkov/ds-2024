@@ -1,5 +1,7 @@
 ﻿using Infrastructure.Extensions;
+using Infrastructure.RegionSharding;
 using Integration.Redis.Client;
+using Integration.Redis.ClientFactory;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Valuator.Pages;
@@ -7,29 +9,35 @@ namespace Valuator.Pages;
 public class SummaryModel : PageModel
 {
     private readonly ILogger<SummaryModel> _logger;
-    private readonly IRedisClient _redisClient;
+    private readonly IRedisShardingClientFactory _redisShardingClientFactory;
 
-    public SummaryModel( ILogger<SummaryModel> logger, IRedisClient redisClient )
+    public SummaryModel( ILogger<SummaryModel> logger, IRedisShardingClientFactory redisShardingClientFactory )
     {
         _logger = logger;
-        _redisClient = redisClient;
+        _redisShardingClientFactory = redisShardingClientFactory;
     }
 
     public double Rank { get; set; }
     public double Similarity { get; set; }
+    public Country TextCountry { get; set; }
 
-    public void OnGet( string id )
+    public void OnGet( string id, Country country )
     {
         _logger.LogDebug( id );
 
-        if ( Double.TryParse( _redisClient.Get( id.AsRankKey() ), out double rank ) )
+        _logger.LogInformation( $"LOOKUP: {id}, {country.GetRegion()}" );
+
+        IRedisClient redisClient = _redisShardingClientFactory.GetClient( country );
+        if ( Double.TryParse( redisClient.Get( id.AsRankKey() ), out double rank ) )
         {
             Rank = rank;
         }
 
-        if ( Double.TryParse( _redisClient.Get( id.AsSimilarityKey() ), out double similarity ) )
+        if ( Double.TryParse( redisClient.Get( id.AsSimilarityKey() ), out double similarity ) )
         {
             Similarity = similarity;
         }
+
+        TextCountry = country;
     }
 }

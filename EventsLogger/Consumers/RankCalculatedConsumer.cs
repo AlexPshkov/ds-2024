@@ -3,7 +3,6 @@ using Integration.Nats.Consumers;
 using Integration.Nats.Messages;
 using Integration.Nats.Messages.Implementation;
 using Integration.Nats.Messages.Implementation.Rank;
-using Integration.Nats.Messages.Implementation.Similarity;
 using Microsoft.Extensions.Logging;
 
 namespace EventsLogger.Consumers;

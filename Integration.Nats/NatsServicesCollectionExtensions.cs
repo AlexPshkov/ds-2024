@@ -4,7 +4,6 @@ using Integration.Nats.Consumers;
 using Integration.Nats.Messages;
 using Microsoft.Extensions.DependencyInjection;
 using NATS.Client;
-using Newtonsoft.Json;
 
 namespace Integration.Nats;
 

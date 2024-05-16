@@ -8,8 +8,12 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.2" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0-preview.2.24128.5" />
       <PackageReference Include="StackExchange.Redis" Version="2.7.20" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

@@ -18,10 +18,7 @@ public static class Program
 
         ConfigurationManager configuration = builder.Configuration;
 
-        RedisClientConfiguration? redisClientConfiguration = configuration.GetSection( RedisClientConfiguration.SectionName ).Get<RedisClientConfiguration>();
         NatsConfiguration? natsConfiguration = configuration.GetSection( NatsConfiguration.SectionName ).Get<NatsConfiguration>();
-
-        builder.Services.AddRedisClient( redisClientConfiguration );
 
         builder.Services
             .AddNatsClient( natsConfiguration )

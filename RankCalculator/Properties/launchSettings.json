@@ -7,8 +7,9 @@
       "applicationUrl": "http://localhost:5541",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "REDIS_ADDRESS": "localhost",
-        "REDIS_PORT": "6379",
+        "DB_RUS": "localhost:6379",
+        "DB_EU": "localhost:6379",
+        "DB_OTHER": "localhost:6379",
         "NATS_URL": "nats://localhost:4222"
       }
     }

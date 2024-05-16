@@ -1,27 +1,29 @@
 using System.Globalization;
 using Infrastructure.Extensions;
+using Infrastructure.RegionSharding;
 using Integration.Nats.Client;
 using Integration.Nats.Consumers;
 using Integration.Nats.Messages;
 using Integration.Nats.Messages.Implementation;
 using Integration.Nats.Messages.Implementation.Rank;
 using Integration.Redis.Client;
+using Integration.Redis.ClientFactory;
 using Microsoft.Extensions.Logging;
 
 namespace RankCalculator.Consumers;
 
 public class RankCalcConsumer : BasicConsumer<RankCalcMessageRequest>
 {
-    private readonly IRedisClient _redisClient;
+    private readonly IRedisShardingClientFactory _redisShardingClientFactory;
     private readonly INatsClient _natsClient;
     private readonly ILogger<RankCalcConsumer> _logger;
 
     public RankCalcConsumer( 
-        IRedisClient redisClient, 
+        IRedisShardingClientFactory redisShardingClientFactory, 
         INatsClient natsClient, 
         ILogger<RankCalcConsumer> logger ) : base( natsClient )
     {
-        _redisClient = redisClient;
+        _redisShardingClientFactory = redisShardingClientFactory;
         _natsClient = natsClient;
         _logger = logger;
     }
@@ -29,11 +31,15 @@ public class RankCalcConsumer : BasicConsumer<RankCalcMessageRequest>
     public override IEventMessageResult Handle( RankCalcMessageRequest similarityCalcMessageRequest )
     {
         string stringId = similarityCalcMessageRequest.TextKey;
-        string text = _redisClient.Get( stringId.AsTextKey() );
+        Country country = similarityCalcMessageRequest.Country;
+        
+        _logger.LogInformation( $"LOOKUP: {stringId}, {country.GetRegion()}" );
+        
+        IRedisClient redisClient = _redisShardingClientFactory.GetClient( country );
+        string text = redisClient.Get( stringId.AsTextKey() );
 
         double rank = CalculateRank( text );
-        
-        _redisClient.Save( stringId.AsRankKey(), rank.ToString( CultureInfo.CurrentCulture ) );
+        redisClient.Save( stringId.AsRankKey(), rank.ToString( CultureInfo.CurrentCulture ) );
 
         _natsClient.Publish( new RankCalculated
         {

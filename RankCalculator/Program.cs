@@ -1,6 +1,5 @@
 ﻿using Integration.Nats;
 using Integration.Nats.Configuration;
-using Integration.Nats.Messages.Implementation;
 using Integration.Nats.Messages.Implementation.Rank;
 using Integration.Redis;
 using Integration.Redis.Configuration;

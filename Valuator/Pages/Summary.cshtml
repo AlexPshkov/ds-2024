@@ -1,6 +1,11 @@
 ﻿@page
+@using Infrastructure.Extensions
 @model Valuator.Pages.SummaryModel
 @{
 }
 <p>Оценка содержания: @Model.Rank.ToString( "F2" )</p>
 <p>Плагиат: @Model.Similarity.ToString( "F2" )</p>
+<p>
+    Страна: @Model.TextCountry.ToString()
+    <b>[@Model.TextCountry.GetRegion().ToString()]</b>
+</p>

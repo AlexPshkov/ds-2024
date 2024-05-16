@@ -4,6 +4,7 @@ services:
     volumes:
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
     command: [ "nginx", '-g', 'daemon off;' ]
+    restart: unless-stopped
     ports:
       - '8080:8080'
     depends_on:
@@ -21,11 +22,14 @@ services:
       - "ASPNETCORE_ENVIRONMENT=Development"
       - "URLS=http://*:5141/"
       - "ASPNETCORE_URLS=http://*:5141/"
-      - "REDIS_ADDRESS=redis-db"
-      - "REDIS_PORT=6379"
+      - "DB_RUS=redis-db-rus:6379"
+      - "DB_EU=redis-db-eu:6379"
+      - "DB_OTHER=redis-db-other:6379"
       - "NATS_URL=nats://nats:4222"
-    depends_on: 
-      - redis-db
+    depends_on:
+      - redis-db-rus
+      - redis-db-eu
+      - redis-db-other
       - nats
       - similarity-calculator
       - rank-calculator
@@ -42,11 +46,14 @@ services:
     restart: unless-stopped
     environment:
       - "ASPNETCORE_ENVIRONMENT=Development"
-      - "REDIS_ADDRESS=redis-db"
-      - "REDIS_PORT=6379"
+      - "DB_RUS=redis-db-rus:6379"
+      - "DB_EU=redis-db-eu:6379"
+      - "DB_OTHER=redis-db-other:6379"
       - "NATS_URL=nats://nats:4222"
     depends_on:
-      - redis-db
+      - redis-db-rus
+      - redis-db-eu
+      - redis-db-other
       - nats
     networks:
       - appnet
@@ -61,11 +68,14 @@ services:
     restart: unless-stopped
     environment:
       - "ASPNETCORE_ENVIRONMENT=Development"
-      - "REDIS_ADDRESS=redis-db"
-      - "REDIS_PORT=6379"
+      - "DB_RUS=redis-db-rus:6379"
+      - "DB_EU=redis-db-eu:6379"
+      - "DB_OTHER=redis-db-other:6379"
       - "NATS_URL=nats://nats:4222"
     depends_on:
-      - redis-db
+      - redis-db-rus
+      - redis-db-eu
+      - redis-db-other
       - nats
     networks:
       - appnet
@@ -91,17 +101,42 @@ services:
       mode: replicated
       replicas: 2
   
-  redis-db:
+  # Редис для региона RUS  
+  redis-db-rus:
     image: redis:6.2-alpine
     restart: always
 #    ports:
 #      - "6379:6379" #Debug
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - redis-cache:/data
+      - redis-cache-rus:/data
     networks:
       - appnet 
-
+  
+  # Редис для региона EU  
+  redis-db-eu:
+    image: redis:6.2-alpine
+    restart: always
+#    ports:
+#      - "6379:6379" #Debug
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis-cache-eu:/data
+    networks:
+      - appnet
+  
+  # Редис для региона OTHER
+  redis-db-other:
+    image: redis:6.2-alpine
+    restart: always
+#    ports:
+#      - "6379:6379" #Debug
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis-cache-other:/data
+    networks:
+      - appnet   
+  
   nats:
     image: nats
     ports:
@@ -120,5 +155,9 @@ networks:
     driver: bridge        
         
 volumes:
-  redis-cache:
+  redis-cache-rus:
     driver: local
+  redis-cache-eu:
+    driver: local
+  redis-cache-other:
+    driver: local    

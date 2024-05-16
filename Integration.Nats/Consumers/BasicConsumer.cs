@@ -1,7 +1,6 @@
 using System.Text;
 using Integration.Nats.Client;
 using Integration.Nats.Messages;
-using Integration.Nats.Messages.Implementation;
 using Microsoft.Extensions.Hosting;
 using NATS.Client;
 using Newtonsoft.Json;
