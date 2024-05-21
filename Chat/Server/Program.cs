@@ -1,81 +1,66 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
+using System.Collections.Generic;
+using Domain.Models;
+using SocketCommunication.Connection;
+using SocketCommunication.Packet.Implementation.Requests;
+using SocketCommunication.Packet.Implementation.Responses;
 
 namespace Server;
 
-class Program
+internal static class Program
 {
-    public static void StartListening()
+    private static List<Message> Messages = new List<Message>();
+
+    private static void Main( string[] args )
     {
-        // Разрешение сетевых имён
-
-        // Привязываем сокет ко всем интерфейсам на текущей машинe
-        IPAddress ipAddress = IPAddress.Any;
-
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-
-        // CREATE
-        Socket listener = new Socket(
-            ipAddress.AddressFamily,
-            SocketType.Stream,
-            ProtocolType.Tcp);
-
-        try
+        if ( args.Length != 1 || !Int32.TryParse( args[0], out int port ) )
         {
-            // BIND
-            listener.Bind(localEndPoint);
-
-            // LISTEN
-            listener.Listen(10);
-
-            while (true)
+            Console.WriteLine( "Invalid arguments! Use: <port>" );
+            return;
+        }
+        
+        Console.WriteLine( $"Start listening messages on port {port}" );
+        
+        ConnectionManager.StartListening( port, ( receivedData, connection ) =>
+        {
+            switch ( receivedData.Type )
             {
-                Console.WriteLine("Ожидание соединения клиента...");
-                // ACCEPT
-                Socket handler = listener.Accept();
-
-                Console.WriteLine("Получение данных...");
-                byte[] buf = new byte[1024];
-                string data = null;
-                while (true)
-                {
-                    // RECEIVE
-                    int bytesRec = handler.Receive(buf);
-
-                    data += Encoding.UTF8.GetString(buf, 0, bytesRec);
-                    if (data.IndexOf("<EOF>") > -1)
-                    {
-                        break;
-                    }
-                }
-
-                Console.WriteLine("Полученный текст: {0}", data);
-
-                // Отправляем текст обратно клиенту
-                byte[] msg = Encoding.UTF8.GetBytes(data);
-
-                // SEND
-                handler.Send(msg);
-
-                // RELEASE
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
+                case nameof( SendMessageRequest ):
+                    Handle( receivedData.Data<SendMessageRequest>(), connection );
+                    return;                
+                case nameof( ReceiveHistoryRequest ):
+                    Handle( receivedData.Data<ReceiveHistoryRequest>(), connection );
+                    return;
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.ToString());
-        }
+        } );
     }
 
-    static void Main(string[] args)
+    private static void Handle( SendMessageRequest sendMessageRequest, CustomSocketConnection socketConnection )
     {
-        Console.WriteLine("Запуск сервера...");
-        StartListening();
-
-        Console.WriteLine("\nНажмите ENTER чтобы выйти...");
-        Console.Read();
+        Message message = new Message
+        {
+            Id = Guid.NewGuid().ToString(),
+            Text = sendMessageRequest.Message,
+            Author = sendMessageRequest.Author,
+            CreationTime = DateTime.Now
+        };
+        
+        Messages.Add( message );
+        
+        Console.WriteLine($"Message '{message.Text}' received from {message.Author}");
+        
+        socketConnection.Send( new SendMessageResponse
+        {
+            IsSuccess = true,
+            Message = message
+        } );
+    }
+    
+    private static void Handle( ReceiveHistoryRequest receiveHistoryRequest, CustomSocketConnection socketConnection )
+    {
+        socketConnection.Send( new ReceiveHistoryResponse
+        {
+            Messages = Messages
+        } );
     }
 }

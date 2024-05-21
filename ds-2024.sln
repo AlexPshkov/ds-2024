@@ -1,16 +1,18 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Valuator", "Valuator\Valuator.csproj", "{87EFCE75-D1CA-4D16-AECC-B111F3E48466}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05E302B1-5B36-4D62-85F9-F2A866106581}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
 		README.md = README.md
 		.gitignore = .gitignore
-		nginx\conf\nginx.conf = nginx\conf\nginx.conf
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Redis", "Integration.Redis\Integration.Redis.csproj", "{3429C9CC-ED71-450A-8744-A0D00CFA1D9E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Chat\Client\Client.csproj", "{2476C05C-81D3-48C3-9B12-F52A49902835}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Chat\Server\Server.csproj", "{73F4D8C1-81C1-4B73-B70A-CCED8F622D53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketCommunication", "SocketCommunication\SocketCommunication.csproj", "{AB4F6978-8D85-41A2-A022-D5F206A46571}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{22F4C55A-0634-497B-8E4A-27D826862AA0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,14 +20,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{87EFCE75-D1CA-4D16-AECC-B111F3E48466}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87EFCE75-D1CA-4D16-AECC-B111F3E48466}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87EFCE75-D1CA-4D16-AECC-B111F3E48466}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87EFCE75-D1CA-4D16-AECC-B111F3E48466}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3429C9CC-ED71-450A-8744-A0D00CFA1D9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3429C9CC-ED71-450A-8744-A0D00CFA1D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3429C9CC-ED71-450A-8744-A0D00CFA1D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3429C9CC-ED71-450A-8744-A0D00CFA1D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2476C05C-81D3-48C3-9B12-F52A49902835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2476C05C-81D3-48C3-9B12-F52A49902835}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2476C05C-81D3-48C3-9B12-F52A49902835}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2476C05C-81D3-48C3-9B12-F52A49902835}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73F4D8C1-81C1-4B73-B70A-CCED8F622D53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73F4D8C1-81C1-4B73-B70A-CCED8F622D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73F4D8C1-81C1-4B73-B70A-CCED8F622D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73F4D8C1-81C1-4B73-B70A-CCED8F622D53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB4F6978-8D85-41A2-A022-D5F206A46571}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB4F6978-8D85-41A2-A022-D5F206A46571}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB4F6978-8D85-41A2-A022-D5F206A46571}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB4F6978-8D85-41A2-A022-D5F206A46571}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22F4C55A-0634-497B-8E4A-27D826862AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22F4C55A-0634-497B-8E4A-27D826862AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22F4C55A-0634-497B-8E4A-27D826862AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22F4C55A-0634-497B-8E4A-27D826862AA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
