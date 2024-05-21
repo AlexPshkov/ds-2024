@@ -1,3 +1,4 @@
+using System.Globalization;
 using Infrastructure.Extensions;
 using Infrastructure.RegionSharding;
 using Integration.Nats.Client;
@@ -29,6 +30,11 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPost( string text, Country country )
     {
+        if ( String.IsNullOrEmpty( text ) )
+        {
+            return new OkResult();
+        } 
+        
         _logger.LogDebug( text );
         
          Guid id = Guid.NewGuid();
@@ -39,18 +45,42 @@ public class IndexModel : PageModel
          IRedisClient redisClient = _redisShardingClientFactory.GetClient( country );
          redisClient.Save( stringId.AsTextKey(), text );
 
+         CalculateSimilarityAndSave( stringId, country );
+         
         await _natsClient.MakeCalcRankRequest( new RankCalcMessageRequest
         {
             TextKey = stringId,
             Country = country
         } );
         
-        await _natsClient.MakeCalcSimilarityRequest( new SimilarityCalcMessageRequest
+        return Redirect( $"summary?id={stringId}&country={country}" );
+    }
+    
+    public void CalculateSimilarityAndSave( string stringId, Country country )
+    {
+        _logger.LogInformation( $"LOOKUP: {stringId}, {country.GetRegion()}" );
+        
+        IRedisClient redisClient = _redisShardingClientFactory.GetClient( country );
+        int similarity = CalculateSimilarity( redisClient, stringId.AsTextKey() );
+        
+        redisClient.Save( stringId.AsSimilarityKey(), similarity.ToString( CultureInfo.CurrentCulture ) );
+
+        _natsClient.Publish( new SimilarityCalculated
         {
             TextKey = stringId,
-            Country = country
+            Similarity = similarity
         } );
         
-        return Redirect( $"summary?id={stringId}&country={country}" );
+        _logger.LogInformation( $"Successfully handled {stringId} by machine {@Environment.MachineName}" );
+    }
+    
+    private int CalculateSimilarity( IRedisClient redisClient, string textKey )
+    {
+        string text = redisClient.Get( textKey );
+        
+        bool isSuch = redisClient.GetAllKeys()
+            .Any( x => x.IsTextKey() && x != textKey && redisClient.Get( x ).Equals( text, StringComparison.CurrentCultureIgnoreCase ) );
+
+        return isSuch ? 1 : 0;
     }
 }

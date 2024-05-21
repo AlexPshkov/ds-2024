@@ -31,7 +31,6 @@ services:
       - redis-db-eu
       - redis-db-other
       - nats
-      - similarity-calculator
       - rank-calculator
     networks: 
       - appnet
@@ -60,28 +59,6 @@ services:
     deploy:
       mode: replicated
       replicas: 3 
-
-  similarity-calculator:
-    build:
-      context: .
-      dockerfile: SimilarityCalculator/Dockerfile
-    restart: unless-stopped
-    environment:
-      - "ASPNETCORE_ENVIRONMENT=Development"
-      - "DB_RUS=redis-db-rus:6379"
-      - "DB_EU=redis-db-eu:6379"
-      - "DB_OTHER=redis-db-other:6379"
-      - "NATS_URL=nats://nats:4222"
-    depends_on:
-      - redis-db-rus
-      - redis-db-eu
-      - redis-db-other
-      - nats
-    networks:
-      - appnet
-    deploy:
-      mode: replicated
-      replicas: 3
   
   events-logger:
     build:
@@ -105,8 +82,8 @@ services:
   redis-db-rus:
     image: redis:6.2-alpine
     restart: always
-#    ports:
-#      - "6379:6379" #Debug
+    ports:
+      - "6379:6379" #Debug
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-cache-rus:/data
@@ -117,8 +94,8 @@ services:
   redis-db-eu:
     image: redis:6.2-alpine
     restart: always
-#    ports:
-#      - "6379:6379" #Debug
+    ports:
+      - "6380:6379" #Debug
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-cache-eu:/data
@@ -129,8 +106,8 @@ services:
   redis-db-other:
     image: redis:6.2-alpine
     restart: always
-#    ports:
-#      - "6379:6379" #Debug
+    ports:
+      - "6381:6379" #Debug
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-cache-other:/data

@@ -25,11 +25,6 @@ public class NatsClient : INatsClient
         return await RequestAsync<RankCalcMessageRequest, CalcMessageResponse>( rankCalcMessageRequest );
     }
     
-    public async Task<CalcMessageResponse?>MakeCalcSimilarityRequest( SimilarityCalcMessageRequest similarityCalcMessageRequest )
-    {
-        return await RequestAsync<SimilarityCalcMessageRequest, CalcMessageResponse>( similarityCalcMessageRequest );
-    }
-    
     public void Publish<T>( T eventMessage ) where T : IEventMessage
     {
         string serializeObject = JsonConvert.SerializeObject( eventMessage );
