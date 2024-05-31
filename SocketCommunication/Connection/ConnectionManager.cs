@@ -14,8 +14,7 @@ public static class ConnectionManager
         return new CustomSocketConnection( sender );
     }
 
-    public static void StartListening( int port, Action<ReceivedData, CustomSocketConnection> packetHandler,
-        CancellationToken cancellationToken = new CancellationToken() )
+    public static void StartListening( int port, Action<ReceivedData, CustomSocketConnection> packetHandler, CancellationToken cancellationToken = new CancellationToken() )
     {
         IPAddress ipAddress = IPAddress.Any;
 

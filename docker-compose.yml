@@ -1,0 +1,61 @@
+﻿services:
+  main-node:
+    build:
+      context: .
+      dockerfile: Chain/Dockerfile
+    restart: unless-stopped
+    command:
+      - "1000"
+      - "child-node-1"
+      - "1001"
+      - "true"
+      - "-5"
+    networks:
+      - appnet
+      
+  child-node-1:
+    build:
+      context: .
+      dockerfile: Chain/Dockerfile
+    restart: unless-stopped
+    command:
+      - "1001"
+      - "child-node-2"
+      - "1002"
+      - "false"
+      - "1"
+    networks:
+      - appnet
+    
+  child-node-2:
+    build:
+      context: .
+      dockerfile: Chain/Dockerfile
+    restart: unless-stopped
+    command:
+      - "1002"
+      - "child-node-3"
+      - "1003"
+      - "false"
+      - "2"
+    networks:
+      - appnet
+    
+  child-node-3:
+    build:
+      context: .
+      dockerfile: Chain/Dockerfile
+    restart: unless-stopped
+    command:
+      - "1003"
+      - "main-node"
+      - "1000"
+      - "false"
+      - "4"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    name: appnet
+    driver: bridge        
